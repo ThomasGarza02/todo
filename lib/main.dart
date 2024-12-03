@@ -121,15 +121,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 ],
               ),
             ),
-            Column(
-              children: _categoryList,
-            ),
-            Container(
-                width: 100,
-                child: FloatingActionButton(
-                  onPressed: () {},
-                  child: Text("Remove all completed task"),
-                ))
+            Column(children: _categoryList),
           ],
         ),
       ),

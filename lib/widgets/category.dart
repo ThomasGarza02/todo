@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './task.dart';
 
 class Category extends StatefulWidget {
   final String categorytxt;
@@ -9,12 +10,17 @@ class Category extends StatefulWidget {
 
 class _CategoryState extends State<Category> {
   bool _isExtended = false;
-  final List<Widget> _taskList = [];
+  final List<Task> _taskList = [];
   void _isextended(bool isextended) {
     _isExtended = isextended;
-
     setState(() {
       _isExtended = isextended ? false : true;
+    });
+  }
+
+  void _removeTask(int index) {
+    setState(() {
+      _taskList.removeAt(index); // Remove widget at the specified index
     });
   }
 
@@ -45,8 +51,8 @@ class _CategoryState extends State<Category> {
             ]),
           ),
         ),
-        Visibility(
-          visible: _isExtended,
+        Offstage(
+          offstage: !_isExtended,
           child: Column(
             children: _taskList,
           ),
@@ -56,7 +62,9 @@ class _CategoryState extends State<Category> {
           child: FilledButton(
               onPressed: () {
                 setState(() {
-                  _taskList.add(Task());
+                  _taskList.add(Task(
+                    index: 1,
+                  ));
                 });
               },
               style: FilledButton.styleFrom(
@@ -71,120 +79,5 @@ class _CategoryState extends State<Category> {
         ),
       ],
     );
-  }
-}
-
-class Task extends StatefulWidget {
-  const Task({super.key});
-
-  @override
-  State<Task> createState() => _TaskState();
-}
-
-class _TaskState extends State<Task> {
-  late TextEditingController taskController;
-  late TextEditingController dueByController;
-  late TextEditingController priorityController;
-  @override
-  void initState() {
-    super.initState();
-    taskController = TextEditingController();
-    dueByController = TextEditingController();
-    priorityController = TextEditingController();
-  }
-
-  @override
-  void dispose() {
-    taskController.dispose();
-    dueByController.dispose();
-    priorityController.dispose();
-    super.dispose();
-  }
-
-  String _taskName = "Task";
-  String _dueDate = "due by";
-  String _priorityLvl = "Priority lvl";
-  bool _done = false;
-  void _check(bool checkedBox) {
-    _done = checkedBox;
-
-    setState(() {
-      _done = _done ? false : true;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 50, right: 20),
-      child: FilledButton(
-        onPressed: () {
-          _check(_done);
-        },
-        onLongPress: () async {
-          final form = await openDialog();
-          if (form == null || form.isEmpty) return;
-
-          setState(() {
-            _taskName = form['task'] == "" ? _taskName : form['task'];
-            _dueDate = form['dueBy'] == "" ? _dueDate : form['dueBy'];
-            _priorityLvl =
-                form['priority'] == "" ? _priorityLvl : form['priority'];
-          });
-        },
-        style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xfff5f5f5),
-            shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(10)))),
-        child: Row(children: [
-          Icon(
-            _done ? Icons.check_box_outlined : Icons.check_box_outline_blank,
-            color: const Color(0xff0f4c9f),
-          ),
-          Text(
-            _taskName,
-            style: const TextStyle(color: Color(0xff0f4c9f)),
-          ),
-          Text(
-            _dueDate,
-            style: const TextStyle(color: Color(0xff0f4c9f)),
-          ),
-          Text(
-            _priorityLvl,
-            style: const TextStyle(color: Color(0xff0f4c9f)),
-          ),
-        ]),
-      ),
-    );
-  }
-
-  Future openDialog() => showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                decoration: const InputDecoration(hintText: 'Task'),
-                controller: taskController,
-              ),
-              TextField(
-                decoration: const InputDecoration(hintText: 'Due by'),
-                controller: dueByController,
-              ),
-              TextField(
-                decoration: const InputDecoration(hintText: 'Priority lvl'),
-                controller: priorityController,
-              ),
-            ],
-          ),
-          actions: [TextButton(onPressed: submit, child: const Text("done"))]));
-
-  void submit() {
-    Navigator.of(context).pop({
-      'task': taskController.text,
-      'dueBy': dueByController.text,
-      'priority': priorityController.text
-    });
   }
 }
